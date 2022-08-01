@@ -7,24 +7,22 @@ def create_app(config_file: str) -> Type[Flask]:
     """Returns Flask App configured with the given json file."""
     with open(config_file) as f:
         config = json.load(f)
+    
+    print(config)
 
     app = Flask(__name__)
     app.config.update(config)
 
-    return app
+    from models.db import db
+    db.init_app(app)
 
-def create_db(app: Type[Flask]) -> Type[MongoEngine]:
-    """Returns MongoDB initialized with given Flask App instance."""
-    return MongoEngine(app)
+    from views.hello import bp
+    app.register_blueprint(bp)
+
+    return app
 
 if __name__ == "__main__":
     app = create_app("config.json")
-    db = create_db(app)
-
-    # Example endpoint defined without blueprint
-    @app.route("/events")
-    def events():
-        return "All Events"
 
     # Runs in DEBUG mode
     app.run()
