@@ -8,8 +8,6 @@ def create_app(config_file: str) -> Type[Flask]:
     with open(config_file) as f:
         config = json.load(f)
     
-    print(config)
-
     app = Flask(__name__)
     app.config.update(config)
 
@@ -17,6 +15,9 @@ def create_app(config_file: str) -> Type[Flask]:
     db.init_app(app)
 
     from views.hello import bp
+    app.register_blueprint(bp)
+
+    from views.user import bp
     app.register_blueprint(bp)
 
     return app

@@ -1,11 +1,9 @@
 {
-  "MONGODB_SETTINGS": [
-    {
+  "MONGODB_SETTINGS": {
       "db": "sassi-db",
       "host": "localhost",
-      "port": 3000,
+      "port": 27017,
       "alias": "default"
-    }
-  ],
+  },
   "SERVER_NAME": "localhost:8080"
 }
