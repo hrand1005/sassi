@@ -1,6 +1,6 @@
 import re
 from flask import (
-    Blueprint, flash, redirect, render_template, request, url_for
+    Blueprint, flash, session, redirect, render_template, request, url_for
 )
 from models.user import User
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -10,11 +10,48 @@ USERNAME_MIN_LENGTH = 3
 PASSWORD_MIN_LENGTH = 5
 EMAIL_MIN_LENGTH = 6
 
+# html templates
+SIGNUP_HTML = "auth/signup.html"
+LOGIN_HTML = "auth/login.html"
+
 bp = Blueprint("auth", __name__, url_prefix="/")
+
+@bp.route("/login", methods=["GET"])
+def render_login():
+    """
+    Renders the login page.
+    """
+    return render_template(LOGIN_HTML)
+
+@bp.route("/login", methods=["POST"])
+def submit_login():
+    """
+    Attmepts to log in an existing user from the provided email and password.
+    If the user is found, the session's user_id field is set.
+    """
+    email = request.form.get("email")
+    password = request.form.get("password")
+
+    user = User.objects(email__iexact=email).first()
+    if not user:
+        flash(f"No user with email '{email}' exists.")
+        return render_login()
+    
+    if not check_password_hash(user.password, password):
+        flash(f"Incorrect password.")
+        return render_login()
+
+    session.clear()
+    session["user_id"] = user.id
+    return redirect(url_for("index"))
+    
 
 @bp.route("/signup", methods=["GET"])
 def render_signup():
-    return render_template("auth/signup.html")
+    """
+    Renders the signup page.
+    """
+    return render_template(SIGNUP_HTML)
 
 @bp.route("/signup", methods=["POST"])
 def submit_signup():
@@ -39,9 +76,12 @@ def submit_signup():
         return render_signup()
 
     # TODO: try / except
-    User(name=username,
-         email=email,
-         password=generate_password_hash(password)).save()
+    try:
+        User(name=username,
+             email=email,
+             password=generate_password_hash(password)).save()
+    except Exception as e:
+        flash(f"Catastrophic failure: {e}")
 
     return redirect(url_for("auth.render_login"))
 
@@ -78,6 +118,3 @@ def check_email(email: str):
         raise ValueError(f"Invalid email field.")
     return
 
-@bp.route("/login", methods=["GET"])
-def render_login():
-    return "hi mom"
