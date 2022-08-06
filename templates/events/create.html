@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block header %}
+	<h1>{% block title %}New Event{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+	<form method="post">
+		<label for="title">Title</label>
+		<input name="title" id="title" value="{{ request.form['title'] }}" required>
+		<div>
+			<label for="public">Public</label>
+			<input type="checkbox" id="public" name="public" >
+		</div>
+		<label for="event-time">Event time</label>
+		<input type="date" id="date" name="date" value="01/01/2022" required>
+		<input type="time" id="time" name="time" value="12:00">
+		<label for="description">Description</label>
+		<textarea name="description" id="description">{{ request.form['description'] }}</textarea>
+		<input type="submit" value="Save">
+	</form>
+{% endblock %}

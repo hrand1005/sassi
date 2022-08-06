@@ -17,6 +17,10 @@ def create_app() -> Type[Flask]:
     import auth
     app.register_blueprint(auth.bp)
 
+    import events
+    app.register_blueprint(events.bp)
+    app.add_url_rule("/", endpoint="index")
+
     return app
 
 if __name__ == "__main__":

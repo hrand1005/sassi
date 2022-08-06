@@ -1,6 +1,7 @@
+import functools
 import re
 from flask import (
-    Blueprint, flash, session, redirect, render_template, request, url_for
+    Blueprint, flash, g, session, redirect, render_template, request, url_for
 )
 from models.user import User
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -15,6 +16,16 @@ SIGNUP_HTML = "auth/signup.html"
 LOGIN_HTML = "auth/login.html"
 
 bp = Blueprint("auth", __name__, url_prefix="/")
+
+@bp.before_app_request
+def load_session():
+    user_id = session.get("user_id")
+    if user_id:
+        g.user = User.objects(pk=user_id).first()
+    else:
+        g.user = None
+
+
 
 @bp.route("/login", methods=["GET"])
 def render_login():
@@ -42,9 +53,13 @@ def submit_login():
         return render_login()
 
     session.clear()
-    session["user_id"] = user.id
+    session["user_id"] = str(user.id)
     return redirect(url_for("index"))
     
+@bp.route("/logout", methods=["GET"])
+def logout():
+    session.clear()
+    return redirect(url_for('index'))
 
 @bp.route("/signup", methods=["GET"])
 def render_signup():
@@ -75,7 +90,6 @@ def submit_signup():
         flash("A user with this email already exists.")
         return render_signup()
 
-    # TODO: try / except
     try:
         User(name=username,
              email=email,
@@ -117,4 +131,14 @@ def check_email(email: str):
     if not match or len(email) < EMAIL_MIN_LENGTH:
         raise ValueError(f"Invalid email field.")
     return
+
+def authentication_required(view):
+    @functools.wraps(view)
+    def wrapped_view(**kwargs):
+        if g.user is None:
+            return redirect(url_for("auth.render_login"))
+
+        return view(**kwargs)
+
+    return wrapped_view
 

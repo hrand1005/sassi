@@ -5,6 +5,5 @@
       "port": 27017,
       "alias": "default"
   },
-  "SERVER_NAME": "localhost:8080",
   "SECRET_KEY": "super-secret-key"
 }

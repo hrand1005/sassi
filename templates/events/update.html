@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block header %}
+	<h1>{% block title %}Edit "{{ event['title'] }}"{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+	<form method="put">
+		<label for="title">Title</label>
+		<input name="title" id="title" value="{{ request.form['title'] }}" required>
+		<div>
+			<label for="public">Public</label>
+			<input type="checkbox" id="public" name="public">
+		</div>
+		<label for="event-time">Event time</label>
+		<input type="date" id="event-date" name="event-date" required>
+		<input type="time" id="event-time" name="event-time" >
+		<label for="description">Description</label>
+		<textarea name="description" id="description">{{ request.form['description'] }}</textarea>
+		<input type="submit" value="Save">
+	</form>
+	<hr>
+	<form action="{{ url_for('event.delete', id=event['id']) }}" method="delete">
+		<input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
+	</form>							  
+{% endblock %}
