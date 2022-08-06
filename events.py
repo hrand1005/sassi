@@ -4,6 +4,7 @@ from flask import (
 from werkzeug.exceptions import abort
 
 from auth import authentication_required
+from datetime import datetime
 from models.user import User
 from models.event import Event
 from models.reminder import Reminder
@@ -44,29 +45,28 @@ def create_event():
     Events private by default.
     """
     title = request.form.get("title")
-    description = request.form.get("description")
+    public = request.form.get("public")
     date = request.form.get("date")
     time = request.form.get("time")
-    public = request.form.get("public")
+    description = request.form.get("description")
 
-    print(f"Got event info:\nTitle: {title}\nDescription: {description}\nDate: {date}\nTime: {time}\nPublic: {public}")
+    # DEBUG
+    # title_str = f"Title: {title}"
+    # desc_str = f"Description: {description}"
+    # date_str = f"Date: {date}\nDate type: {type(date)}"
+    # time_str = f"Time: {time}\nTime type: {type(time)}"
+    # pub_str = f"Public: {public}\nPublic type: {type(public)}"
+    # print(f"Got event info:\n{title_str}\n{desc_str}\n{date_str}\n{time_str}\n{pub_str}")
 
     user_id = g.user.id
     user = User.objects(pk=user_id).first()
 
-    if not title:
-        flash("Event title required.")
-        return render_create_event()
-
-    if not time:
-        flash("Event time required.")
-        return render_create_event()
-
     try:
+        event_time = datetime.strptime(f"{date} {time}", "%Y-%m-%d %H:%M")
         Event(title=title,
              user=user,
              description=description,
-             time=time,
+             time=event_time,
              public=public).save()
     except Exception as e:
         flash(f"Catastrophic failure: {e}")
