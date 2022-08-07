@@ -5,22 +5,22 @@
 {% endblock %}
 
 {% block content %}
-	<form method="put">
+	<form method="post">
 		<label for="title">Title</label>
-		<input name="title" id="title" value="{{ request.form['title'] }}" required>
+		<input name="title" id="title" value="{{ request.form['title'] or event['title'] }}" required>
 		<div>
 			<label for="public">Public</label>
-			<input type="checkbox" id="public" name="public">
+			<input type="checkbox" id="public" name="public" >
 		</div>
 		<label for="event-time">Event time</label>
-		<input type="date" id="event-date" name="event-date" required>
-		<input type="time" id="event-time" name="event-time" >
+		<input type="date" id="date" name="date" value={{ request.form['date'] }} required>
+		<input type="time" id="time" name="time" value={{ request.form['time'] }}>
 		<label for="description">Description</label>
-		<textarea name="description" id="description">{{ request.form['description'] }}</textarea>
+		<textarea name="description" id="description">{{ request.form['description'] or event['description'] }}</textarea>
 		<input type="submit" value="Save">
 	</form>
 	<hr>
-	<form action="{{ url_for('event.delete', id=event['id']) }}" method="delete">
+	<form action="{{ url_for('events.delete', event_id=event['id']) }}" method="post">
 		<input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
 	</form>							  
 {% endblock %}

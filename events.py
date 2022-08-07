@@ -80,43 +80,49 @@ def render_update_event(event_id):
     Renders html for updating an event.
     """
     event = get_event(event_id)
+    # TODO: parse in a way that lets us autopopulate public, date, time
     return render_template(EVENT_UPDATE_HTML, event=event)
     
-@bp.route("/events/<int:event_id>", methods=["PUT"])
+@bp.route("/events/<string:event_id>", methods=["POST"])
 @authentication_required
 def update_event(event_id):
     """
     Updates existing event for logged in user.
     """
+    print("Submitted POST request to events/id")
     event = get_event(event_id)
 
     title = request.form.get("title")
-    description = request.form.get("description")
-    time = request.form.get("time")
     public = request.form.get("public")
+    date = request.form.get("date")
+    time = request.form.get("time")
+    description = request.form.get("description")
 
     if not title:
         flash("Event title required.")
-        return render_update_event()
+        return render_update_event(event_id)
 
     if not time:
         flash("Event time required.")
-        return render_update_event()
+        return render_update_event(event_id)
 
     try:
+        event_time = datetime.strptime(f"{date} {time}", "%Y-%m-%d %H:%M")
+
         event.title = title
         event.description = description
-        event.time = time
+        event.time = event_time
         event.public = public
         event.save()
     except Exception as e:
         flash(f"Catastrophic failure: {e}")
 
-    return render_update_event(event_id)
+    return events_index()
 
-@bp.route("/events/<int:event_id>", methods=["DELETE"])
+@bp.route("/events/<string:event_id>/delete", methods=["POST"])
 @authentication_required
 def delete(event_id):
+    print("in event delete")
     event = get_event(event_id)
     event.delete()
     return redirect(url_for("events.events_index"))
@@ -132,7 +138,9 @@ def get_event(event_id, check_author=True):
         abort(404, f"Event with id {event.id} doesn't exist.")
 
     if check_author:
-        if event.id != g.user.id:
+        if event.user.id != g.user.id:
+            print(f"event.user.id: {event.user.id}, g.user.id: {g.user.id}")
+            print(f"Event id: {event.id}")
             abort(403)
 
     return event

@@ -134,11 +134,11 @@ def check_email(email: str):
 
 def authentication_required(view):
     @functools.wraps(view)
-    def wrapped_view(**kwargs):
+    def wrapped_view(*args, **kwargs):
         if g.user is None:
             return redirect(url_for("auth.render_login"))
 
-        return view(**kwargs)
+        return view(*args, **kwargs)
 
     return wrapped_view
 
