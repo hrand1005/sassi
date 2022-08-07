@@ -16,7 +16,7 @@
           <div class="about"> Happening {{ event['time'].strftime('%Y-%m-%d') }}</div>
         </div>
         {% if g.user['id'] == event['user']['id'] %}
-          <a class="action" href="{{ url_for('events.render_update_event', id=event['id']) }}">Edit</a>
+          <a class="action" href="{{ url_for('events.render_update_event', event_id=event['id']) }}">Edit</a>
         {% endif %}
       </header>
       <p class="description">{{ event['description'] }}</p>

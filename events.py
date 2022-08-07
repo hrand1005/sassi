@@ -73,7 +73,7 @@ def create_event():
 
     return render_template(EVENT_INDEX_HTML)
 
-@bp.route("/events/<int:event_id>", methods=["GET"])
+@bp.route("/events/<string:event_id>", methods=["GET"])
 @authentication_required
 def render_update_event(event_id):
     """
